@@ -7,7 +7,6 @@ import nltk
 # Download sentiment lexicon
 nltk.download('vader_lexicon')
 
-
 # ======================================================
 # ✅ STEP 1 — LOAD DATA
 # ======================================================
@@ -27,7 +26,6 @@ def load_data():
 
 
 df = load_data()
-
 
 st.title("📞 Dental Practice Call Analytics Dashboard")
 st.caption("Voicestack Assignment — Metrics, Funnels, Sentiment & AI Insights")
@@ -57,22 +55,60 @@ filtered_df = df[
 
 
 # ======================================================
-# ✅ STEP 3 — QUANTITATIVE METRICS
+# ✅ STEP 3 — QUANTITATIVE METRICS (NOW WITH RESPONSE TIME)
 # ======================================================
 st.header("📊 Key Front Desk Metrics")
 
-col1, col2, col3, col4 = st.columns(4)
+avg_response = round(filtered_df["Ring Duration"].mean(), 2)
+avg_conversation = round(filtered_df["Conversation Duration"].mean(), 2)
+
+col1, col2, col3, col4, col5 = st.columns(5)
 
 col1.metric("Total Calls", len(filtered_df))
-col2.metric("Answered", (filtered_df["Call Status"] == "Answered").sum())
-col3.metric("Missed", (filtered_df["Call Status"] == "Missed").sum())
-col4.metric("Avg Conversation (sec)", round(filtered_df["Conversation Duration"].mean(), 2))
+col2.metric("✅ Answered", (filtered_df["Call Status"] == "Answered").sum())
+col3.metric("❌ Missed", (filtered_df["Call Status"] == "Missed").sum())
+col4.metric("🗣 Avg Conversation (sec)", avg_conversation)
+col5.metric("⏳ Avg Response Time (sec)", avg_response)
 
 # Calls per day
-daily_calls = filtered_df.groupby(filtered_df["Call Time"].dt.date).size().reset_index(name="count")
 st.subheader("📅 Calls Per Day")
+daily_calls = filtered_df.groupby(filtered_df["Call Time"].dt.date).size().reset_index(name="count")
 fig_daily = px.line(daily_calls, x="Call Time", y="count", markers=True)
 st.plotly_chart(fig_daily)
+
+
+# ======================================================
+# ✅ RESPONSE TIME VISUALIZATION
+# ======================================================
+st.subheader("⏳ Response Time Distribution (Ring Duration)")
+
+fig_rt = px.histogram(
+    filtered_df,
+    x="Ring Duration",
+    nbins=20,
+    title="How Quickly Does the Front Desk Answer Calls?"
+)
+st.plotly_chart(fig_rt)
+
+# Categorize response time
+def categorize_response(t):
+    if pd.isna(t):
+        return "Unknown"
+    if t <= 5:
+        return "Fast (0–5s)"
+    elif t <= 15:
+        return "Moderate (5–15s)"
+    else:
+        return "Slow (15s+)"
+
+filtered_df["Response Category"] = filtered_df["Ring Duration"].apply(categorize_response)
+
+resp_df = filtered_df["Response Category"].value_counts().reset_index()
+resp_df.columns = ["Response Category", "Count"]
+
+st.subheader("⏱️ Response Speed Breakdown")
+fig_resp = px.bar(resp_df, x="Response Category", y="Count", title="Response Performance")
+st.plotly_chart(fig_resp)
 
 
 # ======================================================
@@ -148,35 +184,35 @@ def generate_narrative(row):
     if sentiment == "Positive":
         narrative += "The caller sounded satisfied and calm. "
     elif sentiment == "Negative":
-        narrative += "The caller expressed frustration or dissatisfaction. "
+        narrative += "The caller expressed frustration. "
     else:
         narrative += "The caller maintained a neutral tone. "
 
-    # Category logic
+    # Category
     if category == "Booking":
         narrative += "They contacted the clinic to book an appointment. "
     elif category == "Cancellation":
-        narrative += "The caller intended to cancel a scheduled visit. "
+        narrative += "The caller wanted to cancel a visit. "
     elif category == "Insurance Query":
         narrative += "Insurance-related questions were discussed. "
     elif category == "Billing":
-        narrative += "The call focused on payments or billing concerns. "
+        narrative += "The call focused on billing or payments. "
     else:
-        narrative += "The call was a general inquiry. "
+        narrative += "General inquiry call. "
 
     # Call status
     if status == "Missed":
-        narrative += "This call was missed and likely needs follow-up. "
-    elif status == "Answered":
+        narrative += "The call was missed and needs follow-up. "
+    else:
         narrative += "The call was handled by the front desk. "
 
     # Duration insight
     if duration < 20:
-        narrative += "The conversation was short, indicating quick resolution or incomplete engagement."
+        narrative += "The conversation was short, possibly quick resolution."
     elif duration < 120:
-        narrative += "The call had moderate engagement typical for clinic interactions."
+        narrative += "Moderate engagement typical of clinic calls."
     else:
-        narrative += "The call was long, suggesting detailed clarification or complex patient needs."
+        narrative += "Long call — complex or detailed discussion."
 
     return narrative
 
