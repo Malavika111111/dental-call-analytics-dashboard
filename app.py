@@ -1,4 +1,4 @@
-# Imported necessary libraries
+# Imported necessary libraries and modules
 import streamlit as st
 import pandas as pd
 import plotly.express as px
