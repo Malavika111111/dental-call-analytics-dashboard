@@ -8,21 +8,11 @@ import nltk
 nltk.download('vader_lexicon')
 
 # Loading the data
-@st.cache_data
-def load_data():
-    df = pd.read_excel("Assignment Dataset  .xlsx") 
+df = pd.read_excel("Assignment Dataset  .xlsx") 
 
-    df["Call Time"] = pd.to_datetime(df["Call Time"], errors="coerce")
-    df = df.replace("****", None)
-
-    # Fix Streamlit serialization issues
-    for col in ["From", "To", "Virtual Number"]:
-        if col in df.columns:
-            df[col] = df[col].astype(str)
-
-    return df
-
-df = load_data()
+# Convert date column
+df["Call Time"] = pd.to_datetime(df["Call Time"], errors="coerce")
+df = df.replace("****", None) # Replace masked values
 
 # UI with Tabs
 st.title("📞 Dental Clinic Call Analytics Dashboard")
