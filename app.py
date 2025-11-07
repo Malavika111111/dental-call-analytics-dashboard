@@ -29,8 +29,8 @@ df = load_data()
 # ======================================================
 # ✅ CLEAN UI WITH TABS
 # ======================================================
-st.title("📞 Dental Practice Call Analytics Dashboard")
-st.caption("Voicestack Assignment — Clean, Professional UI with Metrics, Sentiment, Insights & Prompts")
+st.title("📞 Dental Clinic Call Analytics Dashboard")
+st.caption("Monitor call performance and patient interactions.")
 
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📊 Metrics",
