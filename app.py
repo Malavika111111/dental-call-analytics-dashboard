@@ -4,7 +4,7 @@ import plotly.express as px
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 
-# Download sentiment lexicon (only once)
+# Download sentiment lexicon
 nltk.download('vader_lexicon')
 
 # Loading the data
