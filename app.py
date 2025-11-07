@@ -30,9 +30,10 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🧾 Prompts Used"
 ])
 
-# Sidebar Filters
+# Adding Title Filters
 st.sidebar.header("Filters")
 
+# Create multi-selection box inside sidebar.
 direction_filter = st.sidebar.multiselect(
     "Call Direction",
     options=df["Call Direction"].dropna().unique(),
@@ -45,12 +46,13 @@ status_filter = st.sidebar.multiselect(
     default=df["Call Status"].dropna().unique()
 )
 
+# Apply filters to the dataset
 filtered_df = df[
     df["Call Direction"].isin(direction_filter) &
     df["Call Status"].isin(status_filter)
 ]
 
-# TAB 1: Metrics 
+# tab1: Metrics 
 with tab1:
     st.header("📊 Key Front Desk Metrics")
     col1, col2, col3, col4, col5 = st.columns(5)
@@ -90,7 +92,7 @@ def analyze_sentiment(text):
 filtered_df["Call Category"] = filtered_df["transcript"].apply(classify_call)
 filtered_df["Sentiment"] = filtered_df["transcript"].apply(analyze_sentiment)
 
-# TAB 2: Charts
+# tab2: Charts
 with tab2:
     st.header("📈 Visual Insights")
 
@@ -119,7 +121,7 @@ with tab2:
     fig_sent = px.pie(sent_df, names="Sentiment", values="Count")
     st.plotly_chart(fig_sent)
 
-# TAB 3: Insights (AI Narrative + Quality Score)
+# tab3: Insights (AI Narrative + Quality Score)
 with tab3:
     st.header("🧠 AI Narrative & Call Quality Insights")
 
@@ -185,7 +187,7 @@ with tab3:
         "Quality Score (1–5)", "AI Narrative"
     ]])
 
-# TAB 4: Booking Funnel
+# tab4 : Booking Funnel
 with tab4:
     st.header("📥 Booking Funnel")
     funnel = pd.DataFrame({
@@ -200,12 +202,12 @@ with tab4:
     fig_funnel = px.bar(funnel, x="Stage", y="Count")
     st.plotly_chart(fig_funnel)
 
-# TAB 5: Raw Data
+# tab5 : Raw Data
 with tab5:
     st.header("📄 Raw Filtered Data")
     st.dataframe(filtered_df)
 
-# TAB 6: Prompts Used 
+# tab6: Prompts Used 
 with tab6:
     st.header("🧾 Prompts Used for Classification & Insights")
 
