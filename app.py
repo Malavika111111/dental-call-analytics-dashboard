@@ -21,16 +21,6 @@ df = df.replace("****", None)
 st.title("📞 Dental Clinic Call Analytics Dashboard")
 st.caption("Monitor call performance and patient interactions.")
 
-# Creating 6 tabs and assign each tab to a variable
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📊 Metrics",
-    "📈 Charts",
-    "🧠 Insights",
-    "📥 Funnel",
-    "📄 Raw Data",
-    "🧾 Prompts Used"
-])
-
 # Adding Title for sidebar Filters
 st.sidebar.header("Filters")
 
@@ -52,6 +42,16 @@ filtered_df = df[
     df["Call Direction"].isin(direction_filter) &
     df["Call Status"].isin(status_filter)
 ]
+
+# Creating 6 tabs and assign each tab to a variable
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "📊 Metrics",
+    "📈 Charts",
+    "🧠 Insights",
+    "📥 Funnel",
+    "📄 Raw Data",
+    "🧾 Prompts Used"
+])
 
 # tab1: Metrics 
 with tab1:
