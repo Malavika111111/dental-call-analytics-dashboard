@@ -7,12 +7,10 @@ import nltk
 # Download sentiment lexicon (only once)
 nltk.download('vader_lexicon')
 
-# ======================================================
-# ✅ STEP 1 — LOAD DATA
-# ======================================================
+# Loading the data
 @st.cache_data
 def load_data():
-    df = pd.read_excel("Assignment Dataset  .xlsx")  # your original file name
+    df = pd.read_excel("Assignment Dataset  .xlsx") 
 
     df["Call Time"] = pd.to_datetime(df["Call Time"], errors="coerce")
     df = df.replace("****", None)
@@ -26,9 +24,7 @@ def load_data():
 
 df = load_data()
 
-# ======================================================
-# ✅ CLEAN UI WITH TABS
-# ======================================================
+# UI with Tabs
 st.title("📞 Dental Clinic Call Analytics Dashboard")
 st.caption("Monitor call performance and patient interactions.")
 
@@ -41,9 +37,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🧾 Prompts Used"
 ])
 
-# ======================================================
-# ✅ SIDEBAR FILTERS (Visible on all tabs)
-# ======================================================
+# ✅ Sidebar Filters
 st.sidebar.header("Filters")
 
 direction_filter = st.sidebar.multiselect(
@@ -63,26 +57,17 @@ filtered_df = df[
     df["Call Status"].isin(status_filter)
 ]
 
-
-# ======================================================
-# ✅ TAB 1: METRICS
-# ======================================================
+# TAB 1: Metrics 
 with tab1:
     st.header("📊 Key Front Desk Metrics")
-
     col1, col2, col3, col4, col5 = st.columns(5)
-
     col1.metric("Total Calls", len(filtered_df))
     col2.metric("Answered", (filtered_df["Call Status"] == "Answered").sum())
     col3.metric("Missed", (filtered_df["Call Status"] == "Missed").sum())
     col4.metric("Avg Conversation (sec)", round(filtered_df["Conversation Duration"].mean(), 2))
     col5.metric("Avg Response Time (sec)", round(filtered_df["Ring Duration"].mean(), 2))
 
-
-# ======================================================
-# ✅ CLASSIFICATION + SENTIMENT FUNCTIONS (Shared by many tabs)
-# ======================================================
-
+# Classification + Sentiment Functions shared by all Tabs 
 def classify_call(text):
     if pd.isna(text):
         return "Unknown"
@@ -112,9 +97,7 @@ def analyze_sentiment(text):
 filtered_df["Call Category"] = filtered_df["transcript"].apply(classify_call)
 filtered_df["Sentiment"] = filtered_df["transcript"].apply(analyze_sentiment)
 
-# ======================================================
-# ✅ TAB 2: CHARTS
-# ======================================================
+# TAB 2: Charts
 with tab2:
     st.header("📈 Visual Insights")
 
@@ -143,10 +126,7 @@ with tab2:
     fig_sent = px.pie(sent_df, names="Sentiment", values="Count")
     st.plotly_chart(fig_sent)
 
-
-# ======================================================
-# ✅ TAB 3: INSIGHTS (AI Narrative + Quality Score)
-# ======================================================
+# TAB 3: Insights (AI Narrative + Quality Score)
 with tab3:
     st.header("🧠 AI Narrative & Call Quality Insights")
 
@@ -196,16 +176,12 @@ with tab3:
             score += 1
         elif row["Sentiment"] == "Negative":
             score -= 1
-
         if row["Call Status"] == "Missed":
             score -= 2
-
         if row["Conversation Duration"] < 20:
             score -= 1
-
         if row["Call Category"] == "Booking":
             score += 1
-
         return max(1, min(score, 5))
 
     filtered_df["AI Narrative"] = filtered_df.apply(generate_narrative, axis=1)
@@ -216,13 +192,9 @@ with tab3:
         "Quality Score (1–5)", "AI Narrative"
     ]])
 
-
-# ======================================================
-# ✅ TAB 4: BOOKING FUNNEL
-# ======================================================
+# TAB 4: Booking Funnel
 with tab4:
     st.header("📥 Booking Funnel")
-
     funnel = pd.DataFrame({
         "Stage": ["Total Calls", "Answered", "Booking"],
         "Count": [
@@ -235,23 +207,17 @@ with tab4:
     fig_funnel = px.bar(funnel, x="Stage", y="Count")
     st.plotly_chart(fig_funnel)
 
-
-# ======================================================
-# ✅ TAB 5: RAW DATA
-# ======================================================
+# TAB 5: Raw Data
 with tab5:
     st.header("📄 Raw Filtered Data")
     st.dataframe(filtered_df)
 
-
-# ======================================================
-# ✅ TAB 6: PROMPTS USED (Assignment Requirement)
-# ======================================================
+# TAB 6: Prompts Used 
 with tab6:
     st.header("🧾 Prompts Used for Classification & Insights")
 
     st.markdown("""
-### ✅ Prompt 1 — Call Category Classification
+### Prompt 1 — Call Category Classification
 **Instruction:**  
 Classify the call transcript into one of the following categories:  
 Booking, Cancellation, Billing, Clinical Question, Insurance Check, General Inquiry, Unknown.  
@@ -259,14 +225,14 @@ Return only the category.
 
 ---
 
-### ✅ Prompt 2 — Sentiment Analysis
+### Prompt 2 — Sentiment Analysis
 Analyze the tone of the caller and classify as:  
 Positive, Neutral, Negative.  
 Return only one label.
 
 ---
 
-### ✅ Prompt 3 — Operational Narrative
+### Prompt 3 — Operational Narrative
 Summarize the call in 2–3 sentences focusing on:  
 - Purpose of the call  
 - Issue/Request  
@@ -276,7 +242,7 @@ Avoid PHI.
 
 ---
 
-### ✅ Prompt 4 — Quality Score (1–5)
+### Prompt 4 — Quality Score (1–5)
 Rate the call quality based on:  
 Tone, clarity, call outcome, sentiment, duration.  
 Return a score from 1 to 5.
