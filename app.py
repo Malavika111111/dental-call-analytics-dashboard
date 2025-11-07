@@ -103,24 +103,24 @@ with tab2:
 
     # Calls per day
     daily_calls = filtered_df.groupby(filtered_df["Call Time"].dt.date).size().reset_index(name="count")
-    st.subheader("📅 Calls Per Day")
+    st.subheader("Calls Per Day")
     fig_daily = px.line(daily_calls, x="Call Time", y="count", markers=True)
     st.plotly_chart(fig_daily)
 
     # Call status distribution
-    st.subheader("📞 Call Status Breakdown")
+    st.subheader("Call Status Breakdown")
     fig_status = px.pie(filtered_df, names="Call Status")
     st.plotly_chart(fig_status)
 
     # Category chart
-    st.subheader("📂 Call Categories")
+    st.subheader("Call Categories")
     cat_df = filtered_df["Call Category"].value_counts().reset_index()
     cat_df.columns = ["Category", "Count"]
     fig_cat = px.bar(cat_df, x="Category", y="Count")
     st.plotly_chart(fig_cat)
 
     # Sentiment chart
-    st.subheader("😊 Sentiment Distribution")
+    st.subheader("Sentiment Distribution")
     sent_df = filtered_df["Sentiment"].value_counts().reset_index()
     sent_df.columns = ["Sentiment", "Count"]
     fig_sent = px.pie(sent_df, names="Sentiment", values="Count")
@@ -209,12 +209,12 @@ with tab4:
 
 # tab5 : Raw Data
 with tab5:
-    st.header("📄 Raw Filtered Data")
+    st.header("Raw Filtered Data")
     st.dataframe(filtered_df)
 
 # tab6: Prompts Used 
 with tab6:
-    st.header("🧾 Prompts Used for Classification & Insights")
+    st.header("Prompts Used for Classification & Insights")
 
     st.markdown("""
 ### Prompt 1 — Call Category Classification
