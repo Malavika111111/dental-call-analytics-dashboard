@@ -7,12 +7,13 @@ import nltk
 # Download sentiment lexicon
 nltk.download('vader_lexicon')
 
+
 # ======================================================
 # ✅ STEP 1 — LOAD DATA
 # ======================================================
 @st.cache_data
 def load_data():
-    df = pd.read_excel("Assignment Dataset  .xlsx")  # YOUR FILE NAME
+    df = pd.read_excel("Assignment Dataset  .xlsx")  # your original filename
 
     df["Call Time"] = pd.to_datetime(df["Call Time"], errors="coerce")
     df = df.replace("****", None)
@@ -24,7 +25,9 @@ def load_data():
 
     return df
 
+
 df = load_data()
+
 
 st.title("📞 Dental Practice Call Analytics Dashboard")
 st.caption("Voicestack Assignment — Metrics, Funnels, Sentiment & AI Insights")
@@ -54,30 +57,28 @@ filtered_df = df[
 
 
 # ======================================================
-# ✅ STEP 3 — QUANTITATIVE METRICS (WITH RESPONSE TIME)
+# ✅ STEP 3 — QUANTITATIVE METRICS
 # ======================================================
 st.header("📊 Key Front Desk Metrics")
-
-avg_response = round(filtered_df["Ring Duration"].mean(), 2)
-avg_conversation = round(filtered_df["Conversation Duration"].mean(), 2)
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
 col1.metric("Total Calls", len(filtered_df))
-col2.metric("✅ Answered", (filtered_df["Call Status"] == "Answered").sum())
-col3.metric("❌ Missed", (filtered_df["Call Status"] == "Missed").sum())
-col4.metric("🗣 Avg Conversation (sec)", avg_conversation)
-col5.metric("⏳ Avg Response Time (sec)", avg_response)
+col2.metric("Answered", (filtered_df["Call Status"] == "Answered").sum())
+col3.metric("Missed", (filtered_df["Call Status"] == "Missed").sum())
+col4.metric("Avg Conversation (sec)", round(filtered_df["Conversation Duration"].mean(), 2))
+col5.metric("Avg Response Time (sec)", round(filtered_df["Ring Duration"].mean(), 2))
 
-# Calls per day
-st.subheader("📅 Calls Per Day")
+
+# Calls per day (line chart)
 daily_calls = filtered_df.groupby(filtered_df["Call Time"].dt.date).size().reset_index(name="count")
+st.subheader("📅 Calls Per Day")
 fig_daily = px.line(daily_calls, x="Call Time", y="count", markers=True)
 st.plotly_chart(fig_daily)
 
 
 # ======================================================
-# ✅ STEP 4 — CALL CATEGORY CLASSIFICATION
+# ✅ STEP 4 — CALL CATEGORY CLASSIFICATION (RULE-BASED)
 # ======================================================
 st.header("📞 Call Classification — Booking, Cancellation, Queries")
 
@@ -106,7 +107,7 @@ st.plotly_chart(fig_cat)
 
 
 # ======================================================
-# ✅ STEP 5 — SENTIMENT ANALYSIS
+# ✅ STEP 5 — SENTIMENT ANALYSIS (QUALITATIVE)
 # ======================================================
 st.header("😊 Sentiment Analysis for Patient Emotions")
 
@@ -133,7 +134,7 @@ st.plotly_chart(fig_sent)
 
 
 # ======================================================
-# ✅ STEP 6 — AI NARRATIVE & QUALITY SCORE
+# ✅ STEP 6 — AI-LIKE NARRATIVE & QUALITY SCORE
 # ======================================================
 st.header("🧠 AI Narrative & Call Quality Insights")
 
@@ -145,11 +146,11 @@ def generate_narrative(row):
 
     narrative = ""
 
-    # Sentiment tone
+    # Sentiment interpretation
     if sentiment == "Positive":
         narrative += "The caller sounded satisfied and calm. "
     elif sentiment == "Negative":
-        narrative += "The caller expressed frustration. "
+        narrative += "The caller expressed frustration or dissatisfaction. "
     else:
         narrative += "The caller maintained a neutral tone. "
 
@@ -157,33 +158,34 @@ def generate_narrative(row):
     if category == "Booking":
         narrative += "They contacted the clinic to book an appointment. "
     elif category == "Cancellation":
-        narrative += "The caller wanted to cancel a visit. "
+        narrative += "The caller intended to cancel an appointment. "
     elif category == "Insurance Query":
         narrative += "Insurance-related questions were discussed. "
     elif category == "Billing":
-        narrative += "The call focused on billing or payments. "
+        narrative += "The call focused on billing or payment concerns. "
     else:
-        narrative += "General inquiry call. "
+        narrative += "The call was a general inquiry. "
 
-    # Status
+    # Call status
     if status == "Missed":
-        narrative += "The call was missed and needs follow-up. "
-    else:
-        narrative += "The call was handled successfully. "
+        narrative += "This call was missed and may require a follow-up. "
+    elif status == "Answered":
+        narrative += "The call was handled by the front desk. "
 
-    # Duration
+    # Duration interpretation
     if duration < 20:
-        narrative += "Short call — possibly quick resolution."
+        narrative += "The conversation was short, suggesting quick resolution or limited engagement."
     elif duration < 120:
-        narrative += "Moderate call length — typical interaction."
+        narrative += "The call had moderate engagement typical for clinic interactions."
     else:
-        narrative += "Long call — indicates complex discussion."
+        narrative += "The call was long, indicating complex patient needs."
 
     return narrative
 
 
+
 def call_quality_score(row):
-    score = 3  # baseline
+    score = 3  # baseline neutral score
 
     if row["Sentiment"] == "Positive":
         score += 1
@@ -206,10 +208,7 @@ filtered_df["AI Narrative"] = filtered_df.apply(generate_narrative, axis=1)
 filtered_df["Quality Score (1–5)"] = filtered_df.apply(call_quality_score, axis=1)
 
 st.subheader("📌 Narrative & Quality Table")
-st.dataframe(filtered_df[[
-    "Call Time", "Call Category", "Sentiment",
-    "Quality Score (1–5)", "AI Narrative"
-]])
+st.dataframe(filtered_df[[ "Call Time", "Call Category", "Sentiment", "Quality Score (1–5)", "AI Narrative" ]])
 
 
 # ======================================================
@@ -231,7 +230,59 @@ st.plotly_chart(fig_funnel)
 
 
 # ======================================================
-# ✅ STEP 8 — RAW DATA
+# ✅ STEP 8 — REQUIRED PROMPTS SECTION (IMPORTANT)
+# ======================================================
+with st.expander("🧠 LLM Prompts Used for Classification and Insights"):
+    st.markdown("""
+### ✅ Prompt 1 — Call Category Classification
+You are an assistant that classifies dental clinic phone calls.
+
+Given the transcript, classify the call into ONE category:
+- Booking  
+- Cancellation  
+- Billing  
+- Clinical Question  
+- Insurance Check  
+- General Inquiry  
+- Unknown  
+
+Return only the category.
+
+---
+
+### ✅ Prompt 2 — Sentiment Analysis
+Analyze the emotional tone of the caller.
+
+Return one label:
+- Positive  
+- Neutral  
+- Negative  
+
+---
+
+### ✅ Prompt 3 — Operational Narrative
+Summarize the call in 2–3 sentences focusing on:
+- caller’s purpose  
+- issue raised  
+- urgency  
+- follow-up required  
+
+Avoid PHI.
+
+---
+
+### ✅ Prompt 4 — Quality Score (1–5)
+Rate the call quality based on:
+- tone  
+- clarity  
+- resolution  
+- sentiment  
+Return only a number from 1 to 5.
+""")
+
+
+# ======================================================
+# ✅ STEP 9 — RAW DATA
 # ======================================================
 with st.expander("🔍 Show Raw Data"):
     st.dataframe(filtered_df)
