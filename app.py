@@ -54,7 +54,9 @@ filtered_df = df[
 
 # tab1: Metrics 
 with tab1:
+    # Adding Header
     st.header("📊 Key Front Desk Metrics")
+    
     col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("Total Calls", len(filtered_df))
     col2.metric("Answered", (filtered_df["Call Status"] == "Answered").sum())
