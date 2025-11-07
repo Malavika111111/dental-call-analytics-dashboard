@@ -24,7 +24,6 @@ def load_data():
 
     return df
 
-
 df = load_data()
 
 st.title("📞 Dental Practice Call Analytics Dashboard")
@@ -55,7 +54,7 @@ filtered_df = df[
 
 
 # ======================================================
-# ✅ STEP 3 — QUANTITATIVE METRICS (NOW WITH RESPONSE TIME)
+# ✅ STEP 3 — QUANTITATIVE METRICS (WITH RESPONSE TIME)
 # ======================================================
 st.header("📊 Key Front Desk Metrics")
 
@@ -78,41 +77,7 @@ st.plotly_chart(fig_daily)
 
 
 # ======================================================
-# ✅ RESPONSE TIME VISUALIZATION
-# ======================================================
-st.subheader("⏳ Response Time Distribution (Ring Duration)")
-
-fig_rt = px.histogram(
-    filtered_df,
-    x="Ring Duration",
-    nbins=20,
-    title="How Quickly Does the Front Desk Answer Calls?"
-)
-st.plotly_chart(fig_rt)
-
-# Categorize response time
-def categorize_response(t):
-    if pd.isna(t):
-        return "Unknown"
-    if t <= 5:
-        return "Fast (0–5s)"
-    elif t <= 15:
-        return "Moderate (5–15s)"
-    else:
-        return "Slow (15s+)"
-
-filtered_df["Response Category"] = filtered_df["Ring Duration"].apply(categorize_response)
-
-resp_df = filtered_df["Response Category"].value_counts().reset_index()
-resp_df.columns = ["Response Category", "Count"]
-
-st.subheader("⏱️ Response Speed Breakdown")
-fig_resp = px.bar(resp_df, x="Response Category", y="Count", title="Response Performance")
-st.plotly_chart(fig_resp)
-
-
-# ======================================================
-# ✅ STEP 4 — CALL CATEGORY CLASSIFICATION (RULE-BASED)
+# ✅ STEP 4 — CALL CATEGORY CLASSIFICATION
 # ======================================================
 st.header("📞 Call Classification — Booking, Cancellation, Queries")
 
@@ -141,7 +106,7 @@ st.plotly_chart(fig_cat)
 
 
 # ======================================================
-# ✅ STEP 5 — SENTIMENT ANALYSIS (QUALITATIVE)
+# ✅ STEP 5 — SENTIMENT ANALYSIS
 # ======================================================
 st.header("😊 Sentiment Analysis for Patient Emotions")
 
@@ -168,7 +133,7 @@ st.plotly_chart(fig_sent)
 
 
 # ======================================================
-# ✅ STEP 6 — AI-LIKE NARRATIVE & CALL QUALITY INSIGHTS
+# ✅ STEP 6 — AI NARRATIVE & QUALITY SCORE
 # ======================================================
 st.header("🧠 AI Narrative & Call Quality Insights")
 
@@ -200,19 +165,19 @@ def generate_narrative(row):
     else:
         narrative += "General inquiry call. "
 
-    # Call status
+    # Status
     if status == "Missed":
         narrative += "The call was missed and needs follow-up. "
     else:
-        narrative += "The call was handled by the front desk. "
+        narrative += "The call was handled successfully. "
 
-    # Duration insight
+    # Duration
     if duration < 20:
-        narrative += "The conversation was short, possibly quick resolution."
+        narrative += "Short call — possibly quick resolution."
     elif duration < 120:
-        narrative += "Moderate engagement typical of clinic calls."
+        narrative += "Moderate call length — typical interaction."
     else:
-        narrative += "Long call — complex or detailed discussion."
+        narrative += "Long call — indicates complex discussion."
 
     return narrative
 
