@@ -1,32 +1,38 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import nltk
+
+# Download VADER lexicon
+nltk.download('vader_lexicon')
 
 # ---------------------------------
-# LOAD DATA FROM GITHUB FOLDER
+# LOAD DATA (FROM GITHUB FILE)
 # ---------------------------------
 @st.cache_data
 def load_data():
-    df = pd.read_excel("Assignment Dataset  .xlsx")
+    df = pd.read_excel("Assignment Dataset  .xlsx")   # ✅ your real filename
 
     df["Call Time"] = pd.to_datetime(df["Call Time"], errors="coerce")
     df = df.replace("****", None)
 
-    # Convert ID columns to string for Streamlit/Arrow
+    # Fix Arrow serialization issues for Streamlit Cloud
     for col in ["From", "To", "Virtual Number"]:
         if col in df.columns:
             df[col] = df[col].astype(str)
 
     return df
 
+
 df = load_data()
 
 st.title("📞 Dental Clinic Call Analytics Dashboard")
-st.caption("GitHub + Streamlit Cloud Deployment")
+st.caption("Voicestack – Front Desk Performance Dashboard")
 
 
 # ---------------------------------
-# FILTERS
+# SIDEBAR FILTERS
 # ---------------------------------
 st.sidebar.header("Filters")
 
@@ -81,7 +87,45 @@ filtered_df["Call Category"] = filtered_df["transcript"].apply(classify_call)
 
 
 # ---------------------------------
-# VISUALIZATIONS
+# SENTIMENT ANALYSIS
+# ---------------------------------
+sia = SentimentIntensityAnalyzer()
+
+def analyze_sentiment(text):
+    if pd.isna(text):
+        return "Neutral"
+    score = sia.polarity_scores(text)["compound"]
+    if score >= 0.05:
+        return "Positive"
+    elif score <= -0.05:
+        return "Negative"
+    else:
+        return "Neutral"
+
+filtered_df["Sentiment"] = filtered_df["transcript"].apply(analyze_sentiment)
+
+
+# ---------------------------------
+# SENTIMENT SUMMARY + PIE
+# ---------------------------------
+st.subheader("😊 Sentiment Analysis")
+
+sent_counts = filtered_df["Sentiment"].value_counts()
+
+st.write(f"✅ **Positive:** {sent_counts.get('Positive', 0)} calls")
+st.write(f"😐 **Neutral:** {sent_counts.get('Neutral', 0)} calls")
+st.write(f"❌ **Negative:** {sent_counts.get('Negative', 0)} calls")
+
+fig_sent = px.pie(
+    filtered_df,
+    names="Sentiment",
+    title="Sentiment Distribution",
+)
+st.plotly_chart(fig_sent)
+
+
+# ---------------------------------
+# PIE CHARTS
 # ---------------------------------
 st.subheader("📈 Call Direction Breakdown")
 st.plotly_chart(px.pie(filtered_df, names="Call Direction"))
@@ -89,10 +133,17 @@ st.plotly_chart(px.pie(filtered_df, names="Call Direction"))
 st.subheader("📈 Call Status Breakdown")
 st.plotly_chart(px.pie(filtered_df, names="Call Status"))
 
+
+# ---------------------------------
+# CATEGORY BAR CHART
+# ---------------------------------
 st.subheader("📈 Call Categories")
+
 cat_df = filtered_df["Call Category"].value_counts().reset_index()
 cat_df.columns = ["Category", "Count"]
-st.plotly_chart(px.bar(cat_df, x="Category", y="Count", title="Call Categories"))
+
+fig3 = px.bar(cat_df, x="Category", y="Count", title="Call Categories")
+st.plotly_chart(fig3)
 
 
 # ---------------------------------
