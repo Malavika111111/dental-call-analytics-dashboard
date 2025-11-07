@@ -31,7 +31,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🧾 Prompts Used"
 ])
 
-# Adding Title Filters
+# Adding Title for sidebar Filters
 st.sidebar.header("Filters")
 
 # Create multi-selection box inside sidebar.
