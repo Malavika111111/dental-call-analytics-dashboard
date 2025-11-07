@@ -4,20 +4,23 @@ import plotly.express as px
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
 
-# Download sentiment lexicon
+# Download sentiment lexicon for sentiment analysis
 nltk.download('vader_lexicon')
 
 # Loading the data
 df = pd.read_excel("Assignment Dataset  .xlsx") 
 
-# Convert date column
+# Convert date column ie [Call Time] into datatime type
 df["Call Time"] = pd.to_datetime(df["Call Time"], errors="coerce")
-df = df.replace("****", None) # Replace masked values
+
+# Replace masked values to hide sensitive details
+df = df.replace("****", None) 
 
 # UI with Tabs
 st.title("📞 Dental Clinic Call Analytics Dashboard")
 st.caption("Monitor call performance and patient interactions.")
 
+# Creating 6 tabs and assign each tab to a variable
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📊 Metrics",
     "📈 Charts",
@@ -27,7 +30,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🧾 Prompts Used"
 ])
 
-# ✅ Sidebar Filters
+# Sidebar Filters
 st.sidebar.header("Filters")
 
 direction_filter = st.sidebar.multiselect(
