@@ -171,11 +171,11 @@ def generate_narrative(row):
     else:
         narrative += "The call was handled successfully. "
 
-    # Duration
+    # Duration insights
     if duration < 20:
-        narrative += "Short call — possibly quick resolution."
+        narrative += "Short call — quick resolution."
     elif duration < 120:
-        narrative += "Moderate call length — typical interaction."
+        narrative += "Moderate call — typical interaction."
     else:
         narrative += "Long call — indicates complex discussion."
 
@@ -231,7 +231,60 @@ st.plotly_chart(fig_funnel)
 
 
 # ======================================================
-# ✅ STEP 8 — RAW DATA
+# ✅ STEP 8 — REQUIRED LLM PROMPTS (IMPORTANT)
+# ======================================================
+with st.expander("🧠 LLM Prompts Used for Classification (Required for Assignment)"):
+    st.markdown("""
+### ✅ **Prompt 1 — Call Category Classification**
+You are an assistant that classifies dental clinic phone calls.
+
+Given the transcript, classify the call into ONE category:
+- Booking  
+- Cancellation  
+- Billing  
+- Insurance Check  
+- Clinical Question  
+- General Inquiry  
+- Unknown  
+
+Return only the category name.
+
+---
+
+### ✅ **Prompt 2 — Sentiment Detection**
+Analyze the emotional tone of the caller.
+
+Return one label:
+- Positive  
+- Neutral  
+- Negative  
+
+---
+
+### ✅ **Prompt 3 — Operational Narrative**
+Summarize the call in 2–3 sentences focusing on:
+- The patient’s purpose  
+- Issues raised  
+- Urgency  
+- Follow-up needed  
+
+Avoid PHI.
+
+---
+
+### ✅ **Prompt 4 — Quality Score Classification**
+Rate call quality from 1 to 5 based on:
+- Tone  
+- Clarity  
+- Resolution  
+- Effectiveness of communication  
+
+Return only a number from 1 to 5.
+""")
+
+
+# ======================================================
+# ✅ STEP 9 — RAW DATA
 # ======================================================
 with st.expander("🔍 Show Raw Data"):
     st.dataframe(filtered_df)
