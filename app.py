@@ -45,31 +45,6 @@ filtered_df = df[
     df["Call Status"].isin(status_filter)
 ]
 
-# Creating 6 tabs and assign each tab to a variable
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📊 Metrics",
-    "📈 Charts",
-    "🧠 Insights",
-    "📥 Funnel",
-    "📄 Raw Data",
-    "🧾 Prompts Used"
-])
-
-# tab1: Metrics 
-with tab1:
-    # Adding Header
-    st.header("📊 Key Front Desk Metrics")
-
-    # Create 5 side by side column boxes
-    col1, col2, col3, col4, col5 = st.columns(5)
-
-    # Displaying each
-    col1.metric("Total Calls", len(filtered_df))
-    col2.metric("Answered", (filtered_df["Call Status"] == "Answered").sum())
-    col3.metric("Missed", (filtered_df["Call Status"] == "Missed").sum())
-    col4.metric("Avg Conversation (sec)", round(filtered_df["Conversation Duration"].mean(), 2))
-    col5.metric("Avg Response Time (sec)", round(filtered_df["Ring Duration"].mean(), 2))
-
 # Classification + Sentiment Functions shared by all Tabs 
 def classify_call(text):
     if pd.isna(text):
@@ -99,6 +74,31 @@ def analyze_sentiment(text):
 
 filtered_df["Call Category"] = filtered_df["transcript"].apply(classify_call)
 filtered_df["Sentiment"] = filtered_df["transcript"].apply(analyze_sentiment)
+
+# Creating 6 tabs and assign each tab to a variable
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "📊 Metrics",
+    "📈 Charts",
+    "🧠 Insights",
+    "📥 Funnel",
+    "📄 Raw Data",
+    "🧾 Prompts Used"
+])
+
+# tab1: Metrics 
+with tab1:
+    # Adding Header
+    st.header("📊 Key Front Desk Metrics")
+
+    # Create 5 side by side column boxes
+    col1, col2, col3, col4, col5 = st.columns(5)
+
+    # Displaying each
+    col1.metric("Total Calls", len(filtered_df))
+    col2.metric("Answered", (filtered_df["Call Status"] == "Answered").sum())
+    col3.metric("Missed", (filtered_df["Call Status"] == "Missed").sum())
+    col4.metric("Avg Conversation (sec)", round(filtered_df["Conversation Duration"].mean(), 2))
+    col5.metric("Avg Response Time (sec)", round(filtered_df["Ring Duration"].mean(), 2))
 
 # tab2: Charts
 with tab2:
