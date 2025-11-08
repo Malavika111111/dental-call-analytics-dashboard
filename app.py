@@ -15,7 +15,7 @@ df = pd.read_excel("Assignment Dataset  .xlsx")
 df["Call Time"] = pd.to_datetime(df["Call Time"], errors="coerce")
 
 # Handling missing datas
-df['transcript'] = df['transcript'].fillna("")  # Fill with empty strings
+df['transcript'] = df['transcript'].fillna("")
 df["To"] = df["To"].fillna("Unknown")
 
 # UI with Tabs
