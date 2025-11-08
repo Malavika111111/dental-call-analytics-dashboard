@@ -23,7 +23,8 @@ st.title("📞 Dental Clinic Call Analytics Dashboard")
 st.caption("Monitor call performance and patient interactions.")
 
 # Adding Title for sidebar Filters
-st.sidebar.header("Filters")
+st.sidebar.title("Filters")
+st.sidebar.header("Call Filters")
 
 # Create multi-selection box inside sidebar.
 direction_filter = st.sidebar.multiselect(
