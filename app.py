@@ -14,9 +14,6 @@ df = pd.read_excel("Assignment Dataset  .xlsx")
 # Convert date column ie [Call Time] into datatime type
 df["Call Time"] = pd.to_datetime(df["Call Time"], errors="coerce")
 
-# Replace masked values
-df = df.replace("****", None) 
-
 # UI with Tabs
 st.title("📞 Dental Clinic Call Analytics Dashboard")
 st.caption("Monitor call performance and patient interactions.")
