@@ -7,7 +7,6 @@ This dashboard provides key metrics, visual insights, AI-powered call classifica
 
 # Requirements
 
-- Python 3.8+
 - Streamlit
 - pandas
 - plotly
