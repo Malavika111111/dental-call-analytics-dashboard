@@ -14,6 +14,10 @@ df = pd.read_excel("Assignment Dataset  .xlsx")
 # Convert date column ie [Call Time] into datatime type
 df["Call Time"] = pd.to_datetime(df["Call Time"], errors="coerce")
 
+# Handling missing datas
+df['transcript'] = df['transcript'].fillna("")  # Fill with empty strings
+df["To"] = df["To"].fillna("Unknown")
+
 # UI with Tabs
 st.title("📞 Dental Clinic Call Analytics Dashboard")
 st.caption("Monitor call performance and patient interactions.")
